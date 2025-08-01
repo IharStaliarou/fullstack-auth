@@ -1,9 +1,21 @@
 import { Form, Input, Button, type FormProps } from 'antd';
 import type { SignUpTypes } from '@/shared/types/auth.types';
+import axios from 'axios';
+
+const http = axios.create({
+  baseURL: 'http://localhost:3000/api',
+  params: {},
+  withCredentials: true,
+});
 
 export const SignUpForm = () => {
-  const handleFinish: FormProps<SignUpTypes>['onFinish'] = (values) => {
-    console.log('Success:', values);
+  const handleFinish: FormProps<SignUpTypes>['onFinish'] = async (values) => {
+    try {
+      const { data } = await http.post('/auth/signup', values);
+      console.log(data);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (
@@ -58,6 +70,14 @@ export const SignUpForm = () => {
         label='Email'
         name='email'
         rules={[{ required: true, message: 'Please input your email!' }]}
+      >
+        <Input />
+      </Form.Item>
+
+      <Form.Item<SignUpTypes>
+        label='Phone'
+        name='phone'
+        rules={[{ required: true, message: 'Please input your phone!' }]}
       >
         <Input />
       </Form.Item>

@@ -7,6 +7,7 @@ export type SignUpTypes = {
   firstName: string;
   lastName: string;
   email: string;
+  phone: string;
 };
 
 export type EntranceTypes = 'login' | 'signup';
