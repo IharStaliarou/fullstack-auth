@@ -16,7 +16,7 @@ const Component = styled(Layout.Header)`
 `;
 
 export const Header = () => {
-  const [entrance, setEntrance] = useState<EntranceTypes>('logIn');
+  const [entrance, setEntrance] = useState<EntranceTypes>('login');
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleChangeEntrance = (value: EntranceTypes) => {
