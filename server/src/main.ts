@@ -1,27 +1,19 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { CORS_OPTIONS } from '@config/corsOptions.config';
+import { Logger, ValidationPipe } from '@nestjs/common';
 
-const OPTIONS = {
-  origin: ['http://localhost:5173'],
-  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE, OPTIONS',
-  allowedHeaders: [
-    'Origin',
-    'X-Requested-With',
-    'Content-Type',
-    'Accept',
-    'Authorization',
-  ],
-  credentials: true,
-  optionsSuccessStatus: 200,
-};
+const PORT = process.env.PORT ?? 3000;
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  app.enableCors(OPTIONS);
+  app.enableCors(CORS_OPTIONS);
   app.setGlobalPrefix('api');
+  app.useGlobalPipes(new ValidationPipe());
 
-  await app.listen(process.env.PORT ?? 3000);
+  await app.listen(PORT);
+  Logger.log(`Server started on port ${PORT}`);
 }
 
 bootstrap().catch((err) => {

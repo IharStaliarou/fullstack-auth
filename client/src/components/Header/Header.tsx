@@ -3,7 +3,7 @@ import { useState } from 'react';
 import styled from 'styled-components';
 
 import { Auth } from '@/pages/Auth/Auth';
-import type { EntranceTypes } from '@/shared/types/auth.types';
+import type { EntranceTypes } from '@/shared/interfaces/auth.interfaces';
 import { AuthHeaderButton } from '../AuthHeaderButton/AuthHeaderButton';
 
 const Component = styled(Layout.Header)`
@@ -16,11 +16,10 @@ const Component = styled(Layout.Header)`
 `;
 
 export const Header = () => {
-  const [entrance, setEntrance] = useState<EntranceTypes>('logIn');
+  const [entrance, setEntrance] = useState<EntranceTypes>('login');
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleChangeEntrance = (value: EntranceTypes) => {
-    if (!value) return;
     setEntrance(value);
   };
 

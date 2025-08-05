@@ -1,7 +1,8 @@
 import { Modal, Segmented } from 'antd';
-import { LoginForm } from '@/components/Forms/LoginForm';
-import { SignUpForm } from '@/components/Forms/SignUpForm';
-import type { EntranceTypes } from '@/shared/types/auth.types';
+import { LoginForm } from '@/components/Forms/Login/LoginForm';
+import { SignUpForm } from '@/components/Forms/SignUp/SignUpForm';
+import type { EntranceTypes } from '@/shared/interfaces/auth.interfaces';
+import { useForm } from 'antd/es/form/Form';
 
 const ENTRANCE_OPTIONS = [
   { label: 'Log in', value: 'login' },
@@ -21,9 +22,12 @@ export const Auth = ({
   onChangeEntrance,
   entrance,
 }: IAuthProps) => {
+  const [form] = useForm();
+
+  const modalTitle = entrance === 'login' ? 'Log in' : 'Sign up';
   return (
     <Modal
-      title='Login'
+      title={modalTitle}
       footer={null}
       closable={{ 'aria-label': 'Custom Close Button' }}
       open={isModalOpen}
@@ -36,8 +40,8 @@ export const Auth = ({
         onChange={(value) => onChangeEntrance(value as EntranceTypes)}
       />
 
-      {entrance === 'login' && <LoginForm />}
-      {entrance === 'signup' && <SignUpForm />}
+      {entrance === 'login' && <LoginForm form={form} />}
+      {entrance === 'signup' && <SignUpForm form={form} />}
     </Modal>
   );
 };
