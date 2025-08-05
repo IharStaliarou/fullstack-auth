@@ -4,6 +4,7 @@ import {
   IsStrongPassword,
   Length,
   MinLength,
+  Validate,
 } from 'class-validator';
 
 export class CreateUserDto {
@@ -20,16 +21,6 @@ export class CreateUserDto {
   )
   @MinLength(8, { message: 'Password must be at least 8 characters long' })
   password: string;
-
-  @IsStrongPassword(
-    {},
-    {
-      message:
-        'Password must include at least one lowercase letter, one uppercase letter, one number and one special character',
-    }
-  )
-  @MinLength(8, { message: 'Password must be at least 8 characters long' })
-  repeatPassword: string;
 
   @IsString({ message: 'Name must be a string' })
   @Length(2, 20, { message: 'Name must be between 2 and 20 characters' })

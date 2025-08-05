@@ -44,6 +44,12 @@
       ],
       "@user/*": [
         "src/user/*"
+      ],
+      "@decorators": [
+        "decorators"
+      ],
+      "@decorators/*": [
+        "decorators/*"
       ]
     }
   }

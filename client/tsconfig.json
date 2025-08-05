@@ -11,13 +11,16 @@
         "./src/*"
       ],
       "@types/*": [
-        "src/shared/types/*"
+        "src/shared/interfaces/*"
       ],
       "@components/*": [
         "./src/components/*"
       ],
       "@pages/*": [
         "./src/pages/*"
+      ],
+      "@services/*": [
+        "./src/services/*"
       ]
     }
   }
