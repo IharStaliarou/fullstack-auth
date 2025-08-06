@@ -8,8 +8,9 @@ import {
 import type { ILogin } from '@/shared/interfaces/auth.interfaces';
 import { regexpPatterns } from '@/shared/utils/regexp/regexpPatterns';
 import { SubmitButton } from '@/components/SubmitButton/SubmitButton';
-import { http } from '@/services/http.services';
+import { httpService } from '@/services/http.services';
 import { handleHttpError } from '@/shared/utils/errors/handle-http-error';
+import { jwtDecode } from 'jwt-decode';
 
 interface ILoginFormProps {
   form: FormInstance;
@@ -20,14 +21,24 @@ export const LoginForm = ({ form }: ILoginFormProps) => {
 
   const handleFinish: FormProps<ILogin>['onFinish'] = async (values) => {
     try {
-      const { data } = await http.post('/auth/signup', values);
+      const { data } = await httpService.post('/auth/login', values);
+
+      const accessToken: string = data.accessToken;
+
+      if (!accessToken) {
+        throw new Error('Access token not found');
+      }
+
+      localStorage.setItem('accessToken', accessToken);
+
+      const decodedToken = jwtDecode(accessToken);
 
       api.success({
         message: 'Success!',
-        description: 'You have successfully signed up.',
+        description: 'You have successfully logged in.',
       });
     } catch (error: unknown) {
-      handleHttpError(error, api);
+      handleHttpError(error, api, 'Log in error');
     }
   };
 

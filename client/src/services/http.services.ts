@@ -1,7 +1,17 @@
-import axios from 'axios';
+import axios, { InternalAxiosRequestConfig } from 'axios';
 
-export const http = axios.create({
+export const httpService = axios.create({
   baseURL: 'http://localhost:5000/api',
   params: {},
   withCredentials: true,
 });
+
+httpService.interceptors.request.use(
+  (config: InternalAxiosRequestConfig): InternalAxiosRequestConfig => {
+    const accessToken = localStorage.getItem('accessToken');
+
+    config.headers.Authorization = accessToken ? `Bearer ${accessToken}` : '';
+
+    return config;
+  }
+);

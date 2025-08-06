@@ -1,6 +1,6 @@
 import { Form, Input, type FormProps, notification, FormInstance } from 'antd';
 import type { ISignUp } from '@/shared/interfaces/auth.interfaces';
-import { http } from '@/services/http.services';
+import { httpService } from '@/services/http.services';
 import { regexpPatterns } from '@/shared/utils/regexp/regexpPatterns';
 import { SubmitButton } from '@/components/SubmitButton/SubmitButton';
 import { handleHttpError } from '@/shared/utils/errors/handle-http-error';
@@ -13,7 +13,7 @@ export const SignUpForm = ({ form }: ISignUpFormProps) => {
   const [api, contextHolder] = notification.useNotification();
   const handleFinish: FormProps<ISignUp>['onFinish'] = async (values) => {
     try {
-      const { data } = await http.post('/auth/signup', values);
+      const { data } = await httpService.post('/auth/signup', values);
 
       api.success({
         message: 'Success!',

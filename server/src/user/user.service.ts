@@ -9,6 +9,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from '@prisma/prisma.service';
 import { genSaltSync, hashSync } from 'bcrypt';
+import { error } from 'console';
 
 @Injectable()
 export class UserService {
@@ -57,11 +58,22 @@ export class UserService {
   }
 
   findAll() {
-    return `This action returns all user`;
+    return this.prismaService.user.findMany();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  async findById(id: string) {
+    return this.prismaService.user
+      .findUnique({
+        where: { id },
+      })
+      .then((foundedUser) => {
+        if (!foundedUser) return null;
+        return foundedUser;
+      })
+      .catch((error) => {
+        this.logger.error('An error when looking for a user by id', error);
+        throw new NotFoundException('User with this id is not found');
+      });
   }
 
   async findByUsername(username: string) {
@@ -71,7 +83,6 @@ export class UserService {
       })
       .then((foundedUser) => {
         if (!foundedUser) return null;
-        delete foundedUser.password;
         return foundedUser;
       })
       .catch((error) => {
@@ -90,7 +101,6 @@ export class UserService {
       })
       .then((foundedUser) => {
         if (!foundedUser) return null;
-        delete foundedUser.password;
         return foundedUser;
       })
       .catch((error) => {
@@ -99,14 +109,13 @@ export class UserService {
       });
   }
 
-  findByPhone(phone: string) {
+  async findByPhone(phone: string) {
     return this.prismaService.user
       .findUnique({
         where: { phone },
       })
       .then((foundedUser) => {
         if (!foundedUser) return null;
-        delete foundedUser.password;
         return foundedUser;
       })
       .catch((error) => {
@@ -115,12 +124,22 @@ export class UserService {
       });
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async update(id: string, updateUserDto: UpdateUserDto) {
+    return this.prismaService.user.update({
+      where: { id },
+      data: updateUserDto,
+    });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  async remove(id: string) {
+    return this.prismaService.user
+      .delete({ where: { id } })
+      .then((deletedUser) => {
+        return { message: 'User has been deleted.', deletedUser };
+      })
+      .catch((error) => {
+        throw new Error(`Error deleting user: ${error.message}`);
+      });
   }
 
   private hashPassword(password: string) {

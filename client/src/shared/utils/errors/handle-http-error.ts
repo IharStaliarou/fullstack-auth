@@ -4,6 +4,7 @@ import { AxiosError } from 'axios';
 export const handleHttpError = (
   error: unknown,
   api: NotificationInstance,
+  apiTitleMessage = 'Sign up error',
   defaultMessage = 'Unexpected error occurred. Please try again later.'
 ) => {
   let errorMessage = defaultMessage;
@@ -23,7 +24,7 @@ export const handleHttpError = (
   }
 
   api.error({
-    message: 'Sign up error',
+    message: apiTitleMessage,
     description: errorMessage,
   });
 };
