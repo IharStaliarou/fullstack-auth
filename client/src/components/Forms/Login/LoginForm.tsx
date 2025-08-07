@@ -8,38 +8,19 @@ import {
 import type { ILogin } from '@/shared/interfaces/auth.interfaces';
 import { regexpPatterns } from '@/shared/utils/regexp/regexpPatterns';
 import { SubmitButton } from '@/components/SubmitButton/SubmitButton';
-import { httpService } from '@/services/http.services';
-import { handleHttpError } from '@/shared/utils/errors/handle-http-error';
-import { jwtDecode } from 'jwt-decode';
+import useAuthStore from '@/store/auth.store';
 
 interface ILoginFormProps {
   form: FormInstance;
 }
 
 export const LoginForm = ({ form }: ILoginFormProps) => {
-  const [api, contextHolder] = notification.useNotification();
+  const [, contextHolder] = notification.useNotification();
 
-  const handleFinish: FormProps<ILogin>['onFinish'] = async (values) => {
-    try {
-      const { data } = await httpService.post('/auth/login', values);
+  const { logIn } = useAuthStore();
 
-      const accessToken: string = data.accessToken;
-
-      if (!accessToken) {
-        throw new Error('Access token not found');
-      }
-
-      localStorage.setItem('accessToken', accessToken);
-
-      const decodedToken = jwtDecode(accessToken);
-
-      api.success({
-        message: 'Success!',
-        description: 'You have successfully logged in.',
-      });
-    } catch (error: unknown) {
-      handleHttpError(error, api, 'Log in error');
-    }
+  const handleFinish: FormProps<ILogin>['onFinish'] = async (logInData) => {
+    logIn(logInData);
   };
 
   return (
@@ -55,7 +36,7 @@ export const LoginForm = ({ form }: ILoginFormProps) => {
       >
         <Form.Item<ILogin>
           label='Username'
-          name='username'
+          name='userName'
           rules={[
             { required: true, message: 'Please input your username!' },
             {

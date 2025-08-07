@@ -1,9 +1,8 @@
-import { NotificationInstance } from 'antd/es/notification/interface';
+import { notification } from 'antd';
 import { AxiosError } from 'axios';
 
 export const handleHttpError = (
   error: unknown,
-  api: NotificationInstance,
   apiTitleMessage = 'Sign up error',
   defaultMessage = 'Unexpected error occurred. Please try again later.'
 ) => {
@@ -23,7 +22,7 @@ export const handleHttpError = (
     errorMessage = error.message;
   }
 
-  api.error({
+  notification.error({
     message: apiTitleMessage,
     description: errorMessage,
   });

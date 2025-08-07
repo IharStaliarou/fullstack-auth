@@ -31,23 +31,23 @@ export class UserController {
     return this.userService.findById(id);
   }
 
-  @Get('find-by-username/:username')
-  async findByUsername(@Param('username') username: string) {
-    const user: User = await this.userService.findByUsername(username);
+  @Get('find-by-username/:userName')
+  async findByUsername(@Param('userName') userName: string) {
+    const user: User = await this.userService.findByUsername(userName);
     delete user.password;
     return user;
   }
 
   @Get('find-by-email/:email')
   async findByEmail(@Param('email') email: string) {
-    const user: User = await this.userService.findByUsername(email);
+    const user: User = await this.userService.findByEmail(email);
     delete user.password;
     return user;
   }
 
   @Get('find-by-phone/:phone')
   async findByPhone(@Param('phone') phone: string) {
-    const user: User = await this.userService.findByUsername(phone);
+    const user: User = await this.userService.findByPhone(phone);
     delete user.password;
     return user;
   }

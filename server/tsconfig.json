@@ -50,7 +50,19 @@
       ],
       "@decorators/*": [
         "decorators/*"
-      ]
+      ],
+      "@validators": [
+        "validators"
+      ],
+      "@validators/*": [
+        "validators/*"
+      ],
+      "@token": [
+        "src/token"
+      ],
+      "@token/*": [
+        "src/token/*"
+      ],
     }
   }
 }

@@ -1,7 +1,13 @@
-import axios, { InternalAxiosRequestConfig } from 'axios';
+import axios, {
+  AxiosError,
+  AxiosResponse,
+  InternalAxiosRequestConfig,
+} from 'axios';
+import config from '@config/config.json';
+import useTokenStore from '@/store/token.store';
 
 export const httpService = axios.create({
-  baseURL: 'http://localhost:5000/api',
+  baseURL: config.baseURL,
   params: {},
   withCredentials: true,
 });
@@ -15,3 +21,25 @@ httpService.interceptors.request.use(
     return config;
   }
 );
+
+httpService.interceptors.response.use(
+  (response: AxiosResponse) => {
+    return response;
+  },
+  (error: AxiosError) => {
+    if (error.response.status === 401) {
+      const { refreshTokens } = useTokenStore.getState();
+      return refreshTokens(error);
+    }
+    return Promise.reject(error);
+  }
+);
+
+httpService
+  .get('user/find-by-username/Ihar1')
+  .then((res) => {
+    console.log('res data', res.data);
+  })
+  .catch((err) => {
+    console.log('err', err);
+  });

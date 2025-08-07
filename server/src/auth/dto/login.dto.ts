@@ -4,7 +4,7 @@ import { IsString, IsStrongPassword, Length, MinLength } from 'class-validator';
 export class LoginDto {
   @IsString({ message: 'Username must be a string' })
   @Length(2, 20, { message: 'Username must be between 2 and 20 characters' })
-  username: string;
+  userName: string;
 
   @IsStrongPassword(
     {},

@@ -4,18 +4,24 @@ import {
   Controller,
   Logger,
   Post,
+  Res,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SignUpDto } from './dto/signup.dto';
 import { LoginDto } from './dto/login.dto';
 import { Public } from './guards/jwt.auth.guard';
+import { Response } from 'express';
+import { TokenService } from '@token/token.service';
 
 @Public()
 @Controller('auth')
 export class AuthController {
   private readonly logger = new Logger(AuthController.name);
 
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly tokenService: TokenService
+  ) {}
 
   @Post('signup')
   async signup(@Body() signupDto: SignUpDto) {
@@ -31,7 +37,7 @@ export class AuthController {
   }
 
   @Post('login')
-  async login(@Body() loginDto: LoginDto) {
+  async login(@Body() loginDto: LoginDto, @Res() res: Response) {
     const tokens = await this.authService.login(loginDto);
 
     if (!tokens) {
@@ -40,6 +46,6 @@ export class AuthController {
       throw new BadRequestException(errorMessage);
     }
 
-    return tokens;
+    this.tokenService.setRefreshTokenCookie(tokens, res);
   }
 }

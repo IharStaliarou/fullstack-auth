@@ -1,9 +1,8 @@
 import { Form, Input, type FormProps, notification, FormInstance } from 'antd';
 import type { ISignUp } from '@/shared/interfaces/auth.interfaces';
-import { httpService } from '@/services/http.services';
 import { regexpPatterns } from '@/shared/utils/regexp/regexpPatterns';
 import { SubmitButton } from '@/components/SubmitButton/SubmitButton';
-import { handleHttpError } from '@/shared/utils/errors/handle-http-error';
+import useAuthStore from '@/store/auth.store';
 
 interface ISignUpFormProps {
   form: FormInstance;
@@ -11,17 +10,11 @@ interface ISignUpFormProps {
 
 export const SignUpForm = ({ form }: ISignUpFormProps) => {
   const [api, contextHolder] = notification.useNotification();
-  const handleFinish: FormProps<ISignUp>['onFinish'] = async (values) => {
-    try {
-      const { data } = await httpService.post('/auth/signup', values);
 
-      api.success({
-        message: 'Success!',
-        description: 'You have successfully signed up.',
-      });
-    } catch (error: unknown) {
-      handleHttpError(error, api);
-    }
+  const { signUp } = useAuthStore();
+
+  const handleFinish: FormProps<ISignUp>['onFinish'] = async (signUpData) => {
+    signUp(signUpData);
   };
 
   return (
@@ -37,7 +30,7 @@ export const SignUpForm = ({ form }: ISignUpFormProps) => {
       >
         <Form.Item<ISignUp>
           label='Username'
-          name='username'
+          name='userName'
           rules={[
             { required: true, message: 'Please input your username!' },
             {
