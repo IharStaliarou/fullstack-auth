@@ -2,6 +2,8 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Get,
+  HttpStatus,
   Logger,
   Post,
   Res,
@@ -12,6 +14,11 @@ import { LoginDto } from './dto/login.dto';
 import { Public } from './guards/jwt.auth.guard';
 import { Response } from 'express';
 import { TokenService } from '@token/token.service';
+import { Cookies } from '@decorators/cookies.decorator';
+import { getCookieOptions } from 'src/utils/cookie-options.util';
+import { ConfigService } from '@nestjs/config';
+
+const { REFRESH_TOKEN } = process.env;
 
 @Public()
 @Controller('auth')
@@ -20,7 +27,8 @@ export class AuthController {
 
   constructor(
     private readonly authService: AuthService,
-    private readonly tokenService: TokenService
+    private readonly tokenService: TokenService,
+    private readonly configService: ConfigService
   ) {}
 
   @Post('signup')
@@ -47,5 +55,24 @@ export class AuthController {
     }
 
     this.tokenService.setRefreshTokenCookie(tokens, res);
+  }
+
+  @Get('logout')
+  async logout(
+    @Cookies(REFRESH_TOKEN) refreshToken: string,
+    @Res() res: Response
+  ) {
+    if (!refreshToken) {
+      res.sendStatus(HttpStatus.OK);
+      return;
+    }
+
+    this.authService.deleteRefreshToken(refreshToken);
+
+    const refreshTokenName = this.configService.get('REFRESH_TOKEN');
+    const today = new Date();
+
+    res.cookie(refreshTokenName, '', getCookieOptions(today));
+    res.sendStatus(HttpStatus.OK);
   }
 }

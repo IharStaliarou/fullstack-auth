@@ -12,15 +12,21 @@ import useAuthStore from '@/store/auth.store';
 
 interface ILoginFormProps {
   form: FormInstance;
+  onCancel: () => void;
 }
 
-export const LoginForm = ({ form }: ILoginFormProps) => {
+export const LoginForm = ({ form, onCancel }: ILoginFormProps) => {
   const [, contextHolder] = notification.useNotification();
 
-  const { logIn } = useAuthStore();
+  const { login } = useAuthStore();
 
   const handleFinish: FormProps<ILogin>['onFinish'] = async (logInData) => {
-    logIn(logInData);
+    login(logInData).then((accessToken) => {
+      if (accessToken) {
+        form.resetFields();
+        onCancel();
+      }
+    });
   };
 
   return (

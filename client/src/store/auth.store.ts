@@ -1,12 +1,11 @@
 import authService from '@/services/auth.service';
-import { httpService } from '@/services/http.services';
 import {
   IAccessDecodedToken,
   ILogin,
   ISignUp,
 } from '@/shared/interfaces/auth.interfaces';
 import { handleHttpError } from '@/shared/utils/errors/handle-http-error';
-import { jwtDecode } from 'jwt-decode';
+import { validateAndDecodeToken } from '@/shared/utils/token/validateAndDecodeToken.utils';
 import { create } from 'zustand';
 
 interface IUseAuthStore {
@@ -14,8 +13,9 @@ interface IUseAuthStore {
   authUser: IAccessDecodedToken;
   isLoading: boolean;
   error: null | unknown;
-  logIn: (loginData: ILogin) => void;
-  signUp: (signUpData: ISignUp) => void;
+  login: (loginData: ILogin) => Promise<string | void>;
+  signup: (signUpData: ISignUp) => Promise<string | void>;
+  logout: () => void;
 }
 
 const useAuthStore = create<IUseAuthStore>((set) => ({
@@ -24,10 +24,11 @@ const useAuthStore = create<IUseAuthStore>((set) => ({
   isLoading: false,
   error: null,
 
-  logIn: (loginData: ILogin) => {
+  login: (loginData: ILogin) => {
     set({ isLoading: true, error: null });
-    authService
-      .logIn(loginData)
+
+    return authService
+      .login(loginData)
       .then((data) => {
         const accessToken: string = data.accessToken;
         if (!accessToken) {
@@ -37,10 +38,14 @@ const useAuthStore = create<IUseAuthStore>((set) => ({
 
         localStorage.setItem('accessToken', accessToken);
 
-        const decodedToken: IAccessDecodedToken = jwtDecode(accessToken);
-        delete decodedToken.exp;
-        delete decodedToken.iat;
+        const decodedToken = validateAndDecodeToken(accessToken);
+
+        if (!decodedToken) {
+          throw new Error('Access token not found');
+        }
+
         set({ authUser: decodedToken });
+        return accessToken;
       })
       .catch((error: unknown) => {
         handleHttpError(error, 'Log in error');
@@ -51,15 +56,35 @@ const useAuthStore = create<IUseAuthStore>((set) => ({
       });
   },
 
-  signUp: (signUpData: ISignUp) => {
+  signup: (signUpData: ISignUp) => {
     set({ isLoading: true, error: null });
-    authService
-      .signUp(signUpData)
-      .then((data) => {
-        console.log(data);
+    return authService
+      .signup(signUpData)
+      .then(() => {
+        return useAuthStore.getState().login({
+          userName: signUpData.userName,
+          password: signUpData.password,
+        });
       })
       .catch((error: unknown) => {
         handleHttpError(error, 'Sign up error');
+        set({ error });
+      })
+      .finally(() => {
+        set({ isLoading: false });
+      });
+  },
+
+  logout: () => {
+    set({ isAuth: false, authUser: null });
+    authService
+      .logout()
+      .then(() => {
+        localStorage.removeItem('accessToken');
+        set({ isAuth: false });
+      })
+      .catch((error: unknown) => {
+        handleHttpError(error, 'Something went wrong. Please try again.');
         set({ error });
       })
       .finally(() => {

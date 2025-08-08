@@ -8,16 +8,20 @@ interface ILoginResponseProps {
 const AUTH_ENDPOINT = '/auth/';
 
 const authService = {
-  logIn: async (loginData: ILogin): Promise<ILoginResponseProps> => {
+  login: async (loginData: ILogin): Promise<ILoginResponseProps> => {
     const { data } = await httpService.post(`${AUTH_ENDPOINT}login`, loginData);
     return data;
   },
-  signUp: async (signUpData: ILogin): Promise<IUser> => {
+  signup: async (signUpData: ILogin): Promise<IUser> => {
     const { data } = await httpService.post(
       `${AUTH_ENDPOINT}signup`,
       signUpData
     );
     return data;
+  },
+
+  logout: async () => {
+    await httpService.get(`${AUTH_ENDPOINT}logout`);
   },
 };
 

@@ -1,4 +1,4 @@
-import { ConfigProvider, Layout } from 'antd';
+import { Layout } from 'antd';
 import { styled } from 'styled-components';
 
 const Component = styled(Layout)`

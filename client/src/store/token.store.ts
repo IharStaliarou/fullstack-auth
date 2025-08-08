@@ -1,4 +1,5 @@
 import { httpService } from '@/services/http.services';
+import tokenService from '@/services/token.service';
 import { handleHttpError } from '@/shared/utils/errors/handle-http-error';
 import { AxiosError } from 'axios';
 import { create } from 'zustand';
@@ -17,7 +18,7 @@ const useTokenStore = create<ITokenStoreProps>((set) => ({
     set({ isLoading: true, error: null });
 
     try {
-      const { data } = await httpService.get('/token/refresh-tokens');
+      const data = await tokenService.refreshTokens();
 
       const accessToken: string = data.accessToken;
 
@@ -29,10 +30,10 @@ const useTokenStore = create<ITokenStoreProps>((set) => ({
 
       error.config.headers.Authorization = `Bearer ${accessToken}`;
       return await httpService.request(error.config);
-    } catch (err) {
-      handleHttpError(err, 'Log in error');
+    } catch (error: unknown) {
+      handleHttpError(error, 'Log in error');
       localStorage.removeItem('accessToken');
-      set({ error: err });
+      set({ error });
       // TODO: add redirect
     } finally {
       set({ isLoading: false });

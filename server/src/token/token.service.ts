@@ -8,6 +8,7 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { ICookieOptions, ITokens } from './interfaces/interfaces';
 import { Response } from 'express';
+import { getCookieOptions } from 'src/utils/cookie-options.util';
 
 @Injectable()
 export class TokenService {
@@ -87,17 +88,10 @@ export class TokenService {
 
     // res.cookie(name, validateHeaderValue, options)
     const cookieExpDate = dayjs(expires).toDate();
-    const cookieOptions: ICookieOptions = {
-      httpOnly: true,
-      sameSite: 'lax',
-      secure: false,
-      path: '/',
-      expires: cookieExpDate,
-    };
 
     const refreshToken = this.configService.get('REFRESH_TOKEN');
 
-    res.cookie(refreshToken, token, cookieOptions);
+    res.cookie(refreshToken, token, getCookieOptions(cookieExpDate));
     res.status(HttpStatus.CREATED).json({ accessToken: tokens.accessToken });
   }
 }

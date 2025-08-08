@@ -6,15 +6,21 @@ import useAuthStore from '@/store/auth.store';
 
 interface ISignUpFormProps {
   form: FormInstance;
+  onCancel: () => void;
 }
 
-export const SignUpForm = ({ form }: ISignUpFormProps) => {
-  const [api, contextHolder] = notification.useNotification();
+export const SignUpForm = ({ form, onCancel }: ISignUpFormProps) => {
+  const [, contextHolder] = notification.useNotification();
 
-  const { signUp } = useAuthStore();
+  const { signup } = useAuthStore();
 
   const handleFinish: FormProps<ISignUp>['onFinish'] = async (signUpData) => {
-    signUp(signUpData);
+    signup(signUpData).then((accessToken) => {
+      if (accessToken) {
+        form.resetFields();
+        onCancel();
+      }
+    });
   };
 
   return (

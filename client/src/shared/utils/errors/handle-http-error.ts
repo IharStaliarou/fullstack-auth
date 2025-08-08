@@ -1,6 +1,13 @@
 import { notification } from 'antd';
 import { AxiosError } from 'axios';
 
+/**
+ *
+ * @param error - can be AxiosError or Error
+ * @param apiTitleMessage - title of notification
+ * @param defaultMessage - default message
+ */
+
 export const handleHttpError = (
   error: unknown,
   apiTitleMessage = 'Sign up error',

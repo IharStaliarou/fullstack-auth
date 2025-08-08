@@ -1,27 +1,57 @@
-import { Layout } from 'antd';
-import { useState } from 'react';
+import { Layout, MenuProps, Spin, Typography } from 'antd';
+import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 import { Auth } from '@/pages/Auth/Auth';
-import type { EntranceTypes } from '@/shared/interfaces/auth.interfaces';
+import useAuthStore from '@/store/auth.store';
+import useUserStore from '@/store/user.store';
+import DropDown from '../Dropdown/Dropdown';
 import { AuthHeaderButton } from '../AuthHeaderButton/AuthHeaderButton';
 
 const Component = styled(Layout.Header)`
-  text-align: center;
-  color: #fff;
-  height: 64;
-  padding-inline: 48;
-  line-height: 64px;
-  background-color: #4096ff;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #ffffffff;
 `;
 
 export const Header = () => {
-  const [entrance, setEntrance] = useState<EntranceTypes>('login');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const { isAuth, authUser, logout, isLoading } = useAuthStore();
+  const { fetchUserById, selectedUser } = useUserStore();
 
-  const handleChangeEntrance = (value: EntranceTypes) => {
-    setEntrance(value);
-  };
+  const authUserId = authUser?.userId;
+  const authUserFullName = !isLoading ? (
+    `${selectedUser?.firstName} ${selectedUser?.lastName}`
+  ) : (
+    <Spin />
+  );
+
+  const items: MenuProps['items'] = [
+    {
+      key: '1',
+      label: 'Profile',
+      extra: '⌘P',
+    },
+    {
+      key: '2',
+      label: 'Settings',
+      extra: '⌘B',
+    },
+    {
+      key: '3',
+      label: 'Logout',
+      onClick: () => {
+        if (window.confirm('Are you sure you want to logout?')) {
+          logout();
+        }
+      },
+    },
+    {
+      type: 'divider',
+    },
+  ];
 
   const showModal = () => {
     setIsModalOpen(true);
@@ -31,16 +61,23 @@ export const Header = () => {
     setIsModalOpen(false);
   };
 
+  useEffect(() => {
+    if (authUserId) {
+      fetchUserById(authUserId);
+    }
+  }, [authUserId, fetchUserById]);
+
   return (
     <Component>
-      <AuthHeaderButton showModal={showModal} />
+      <Typography.Text>Auth</Typography.Text>
 
-      <Auth
-        entrance={entrance}
-        isModalOpen={isModalOpen}
-        onChangeEntrance={handleChangeEntrance}
-        cancelModal={cancelModal}
-      />
+      {isAuth ? (
+        <DropDown items={items} authUserFullName={authUserFullName} />
+      ) : (
+        <AuthHeaderButton showModal={showModal} />
+      )}
+
+      <Auth isModalOpen={isModalOpen} cancelModal={cancelModal} />
     </Component>
   );
 };
