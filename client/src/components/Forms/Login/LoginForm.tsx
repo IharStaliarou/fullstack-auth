@@ -8,27 +8,25 @@ import {
 import type { ILogin } from '@/shared/interfaces/auth.interfaces';
 import { regexpPatterns } from '@/shared/utils/regexp/regexpPatterns';
 import { SubmitButton } from '@/components/SubmitButton/SubmitButton';
-import { http } from '@/services/http.services';
-import { handleHttpError } from '@/shared/utils/errors/handle-http-error';
+import useAuthStore from '@/store/auth.store';
 
 interface ILoginFormProps {
   form: FormInstance;
+  onCancel: () => void;
 }
 
-export const LoginForm = ({ form }: ILoginFormProps) => {
-  const [api, contextHolder] = notification.useNotification();
+export const LoginForm = ({ form, onCancel }: ILoginFormProps) => {
+  const [, contextHolder] = notification.useNotification();
 
-  const handleFinish: FormProps<ILogin>['onFinish'] = async (values) => {
-    try {
-      const { data } = await http.post('/auth/signup', values);
+  const { login } = useAuthStore();
 
-      api.success({
-        message: 'Success!',
-        description: 'You have successfully signed up.',
-      });
-    } catch (error: unknown) {
-      handleHttpError(error, api);
-    }
+  const handleFinish: FormProps<ILogin>['onFinish'] = async (logInData) => {
+    login(logInData).then((accessToken) => {
+      if (accessToken) {
+        form.resetFields();
+        onCancel();
+      }
+    });
   };
 
   return (
@@ -44,7 +42,7 @@ export const LoginForm = ({ form }: ILoginFormProps) => {
       >
         <Form.Item<ILogin>
           label='Username'
-          name='username'
+          name='userName'
           rules={[
             { required: true, message: 'Please input your username!' },
             {

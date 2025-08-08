@@ -3,16 +3,21 @@ import { Header } from '@components/Header/Header';
 import { Content } from '@components/Content/Content';
 import { Footer } from '@components/Footer/Footer';
 import { MainLayout } from './MainLayout';
+import { AppLoader } from '@/hoc/AppLoader.hoc';
 
 function App() {
   return (
     <MainLayout
       children={
-        <>
-          <Header />
-          <Content />
-          <Footer />
-        </>
+        <AppLoader
+          children={
+            <>
+              <Header />
+              <Content />
+              <Footer />
+            </>
+          }
+        />
       }
     />
   );

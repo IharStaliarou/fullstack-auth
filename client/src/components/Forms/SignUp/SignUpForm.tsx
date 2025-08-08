@@ -1,27 +1,26 @@
 import { Form, Input, type FormProps, notification, FormInstance } from 'antd';
 import type { ISignUp } from '@/shared/interfaces/auth.interfaces';
-import { http } from '@/services/http.services';
 import { regexpPatterns } from '@/shared/utils/regexp/regexpPatterns';
 import { SubmitButton } from '@/components/SubmitButton/SubmitButton';
-import { handleHttpError } from '@/shared/utils/errors/handle-http-error';
+import useAuthStore from '@/store/auth.store';
 
 interface ISignUpFormProps {
   form: FormInstance;
+  onCancel: () => void;
 }
 
-export const SignUpForm = ({ form }: ISignUpFormProps) => {
-  const [api, contextHolder] = notification.useNotification();
-  const handleFinish: FormProps<ISignUp>['onFinish'] = async (values) => {
-    try {
-      const { data } = await http.post('/auth/signup', values);
+export const SignUpForm = ({ form, onCancel }: ISignUpFormProps) => {
+  const [, contextHolder] = notification.useNotification();
 
-      api.success({
-        message: 'Success!',
-        description: 'You have successfully signed up.',
-      });
-    } catch (error: unknown) {
-      handleHttpError(error, api);
-    }
+  const { signup } = useAuthStore();
+
+  const handleFinish: FormProps<ISignUp>['onFinish'] = async (signUpData) => {
+    signup(signUpData).then((accessToken) => {
+      if (accessToken) {
+        form.resetFields();
+        onCancel();
+      }
+    });
   };
 
   return (
@@ -37,7 +36,7 @@ export const SignUpForm = ({ form }: ISignUpFormProps) => {
       >
         <Form.Item<ISignUp>
           label='Username'
-          name='username'
+          name='userName'
           rules={[
             { required: true, message: 'Please input your username!' },
             {

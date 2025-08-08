@@ -3,6 +3,7 @@ import { LoginForm } from '@/components/Forms/Login/LoginForm';
 import { SignUpForm } from '@/components/Forms/SignUp/SignUpForm';
 import type { EntranceTypes } from '@/shared/interfaces/auth.interfaces';
 import { useForm } from 'antd/es/form/Form';
+import { useState } from 'react';
 
 const ENTRANCE_OPTIONS = [
   { label: 'Log in', value: 'login' },
@@ -12,17 +13,16 @@ const ENTRANCE_OPTIONS = [
 interface IAuthProps {
   isModalOpen: boolean;
   cancelModal: () => void;
-  onChangeEntrance: (value: EntranceTypes) => void;
-  entrance: EntranceTypes;
 }
 
-export const Auth = ({
-  isModalOpen,
-  cancelModal,
-  onChangeEntrance,
-  entrance,
-}: IAuthProps) => {
+export const Auth = ({ isModalOpen, cancelModal }: IAuthProps) => {
   const [form] = useForm();
+
+  const [entrance, setEntrance] = useState<EntranceTypes>('login');
+
+  const handleChangeEntrance = (value: EntranceTypes) => {
+    setEntrance(value);
+  };
 
   const modalTitle = entrance === 'login' ? 'Log in' : 'Sign up';
   return (
@@ -37,11 +37,13 @@ export const Auth = ({
       <Segmented
         options={ENTRANCE_OPTIONS}
         block
-        onChange={(value) => onChangeEntrance(value as EntranceTypes)}
+        onChange={(value) => handleChangeEntrance(value as EntranceTypes)}
       />
 
-      {entrance === 'login' && <LoginForm form={form} />}
-      {entrance === 'signup' && <SignUpForm form={form} />}
+      {entrance === 'login' && <LoginForm form={form} onCancel={cancelModal} />}
+      {entrance === 'signup' && (
+        <SignUpForm form={form} onCancel={cancelModal} />
+      )}
     </Modal>
   );
 };
